@@ -7,41 +7,59 @@ const axios = require('axios');
 
 // const emailService = require('../services/email-service');
 
-exports.post = (req, res, next) => {
-    // try{
-    //     await repository.create({
-    //         // id: req.body.id,
-    //         // nome: req.body.name,
-    //         // nomeFantasia: req.body.nomeFantasia,
-    //         // siglaEstado: req.body.siglaEstado,
-    //         // dataAbertura: req.body.dataAbertura
-    //     })
-    // } catch(e) {
-    //     res.status(500).send({
-    //         message: 'Falha ao processar a requisição!'
-    //     })
-    // }
+exports.index = (req, res, next) => {
+    Cart.find({}, (error, result) => {
+        if(error) console.log("Erro get index");
+        else if(result != null){
+            res.send(result);
+        }
+    })
 }
 
-exports.get = (req, res, next) => {
-        // let data = new Cart(data);
-        // await order.save();
-        axios.get('http://www.transparencia.gov.br/api-de-dados/convenios?uf=AL&pagina=1')
-        .then((resp) => {
-            // resp = JSON.parse(resp.data);
-            resp = JSON.parse(JSON.stringify(resp.data))
-            // res.json(JSON.parse(resp));
-            // console.log(resp);
-            // console.log(resp.servidor.id + " " + resp.servidor.nome);
-            // resp.foreach(resp.servidor.id);
-            let texto = "";
-            resp.forEach((current, i, array) => {
-                texto = Object.assign(texto, resp[i].id + " " + res)
-                texto += resp[i].id + " " + resp[i].convenente.nome + '\n';
-            })
-            res.send(texto);
-        }).catch((reason) => {
-            console.log(reason);
-        })
-        // res.send(req.body.name);
+exports.delete = (req, res, next) => {
+    Cart.findOneAndRemove({email: req.params.email}, (error, result) => {
+        if(error) console.log("Erro no delete");
+        else if(result != null) res.send(result);
+    })
 }
+
+exports.put = (req, res, next) => {
+    Cart.findOneAndUpdate({email: req.params.email}, {
+        $addToSet : {
+            convenios: {
+                id: req.body.id,
+                nomeConvenente: req.body.nomeConvenente,
+                nomeFantasia: req.body.nomeFantasia,
+                siglaEstado: req.body.siglaEstado,
+                dataAbertura: req.body.dataAbertura 
+            }
+        }
+    }, { new: true
+    }, (error, result) => {
+        if(error){
+            console.log("Erro no put");
+            res.status(400).send("Erro no put");
+        }     
+        else if(result != null){
+            res.send(result);
+        } else {
+            res.status(404).send("Erro mesmo assim no put");
+        }
+    })
+}
+
+exports.post = (req, res, next) => {
+
+    let cart = new Cart(req.body);
+    let errors;
+    if(errors = cart.validateSync()){
+        console.log(errors);
+        res.send(errors);
+    } else {
+        cart.save((erro, resultados) => {
+            console.log(erro);
+        })
+        res.send(cart);
+    }
+}
+
