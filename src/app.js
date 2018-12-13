@@ -1,4 +1,5 @@
 'use strict';
+const axios = require('axios');
 
 //Bd : tiago / tiago123
 const express = require('express');
@@ -40,5 +41,34 @@ app.use('/cart', cartRoute);
 // app.use('/products', productRoute);
 // app.use('/customers', customerRoute);
 // app.use('/orders', orderRoute);
+
+app.get("/:sigla",  (req, res, next) => {
+    // let data = new Cart(data);
+    // await order.save();
+    axios.get('http://www.transparencia.gov.br/api-de-dados/convenios?uf=' + req.params.sigla +'&pagina=1')
+    .then((resp) => {
+        // resp = JSON.parse(resp.data);
+        resp = JSON.parse(JSON.stringify(resp.data))
+        // res.json(JSON.parse(resp));
+        // console.log(resp);
+        // console.log(resp.servidor.id + " " + resp.servidor.nome);
+        // resp.foreach(resp.servidor.id);
+        let texto = {}
+        resp.forEach((current, i, array) => {
+            texto[i] = {
+                id: resp[i].id,
+                nome: resp[i].convenente.nome
+            };
+            // texto = Object.assign(texto, resp[i].id + " " + resp[i].convenente.nome);
+            // texto += resp[i].id + " " + resp[i].convenente.nome + '\n';
+        })
+        res.send(texto);
+    }).catch((reason) => {
+        // console.log('http://www.transparencia.gov.br/api-de-dados/convenios?uf=' + req.params.sigla +'&pagina=1')
+        console.log(reason);
+    })
+    // res.send(req.body.name);
+})
+
 
 module.exports = app; //Podemos exportar algo desta classe
