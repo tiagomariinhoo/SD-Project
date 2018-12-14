@@ -58,6 +58,7 @@ exports.post = (req, res, next) => {
     } else {
         cart.save((erro, resultados) => {
             console.log(erro);
+            return ;
         })
         res.send(cart);
     }
