@@ -7,6 +7,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const config  = require('./config');
 
+
 const app = express();
 const router = express.Router();
 
@@ -14,15 +15,20 @@ const router = express.Router();
 //mongoose.connect('mongodb://tiago:tiago123@ds123454.mlab.com:23454/ndstr');
 // mongoose.connect("mongodb://tiago:tiago123@ds123454.mlab.com:23454/ndstr", { useNewUrlParser: true })
 mongoose.connect(config.connectionString, { useNewUrlParser: true });
-
+const Car = require('./models/cart');
 //Carrega os Models
 // const Product = require('./models/product');
 // const Customer = require('./models/customer');
 // const Order = require('./models/order');
-const Car = require('./models/cart');
 
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
+
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
 
 //Carrega as rotas
 const cartRoute = require('./routes/cart-route');
@@ -53,11 +59,11 @@ app.get("/:sigla",  (req, res, next) => {
         // console.log(resp);
         // console.log(resp.servidor.id + " " + resp.servidor.nome);
         // resp.foreach(resp.servidor.id);
-        let texto = {}
+        let texto = []
         resp.forEach((current, i, array) => {
             texto[i] = {
                 id: resp[i].id,
-                nome: resp[i].convenente.nome
+                nomeConvenente: resp[i].convenente.nome,
             };
             // texto = Object.assign(texto, resp[i].id + " " + resp[i].convenente.nome);
             // texto += resp[i].id + " " + resp[i].convenente.nome + '\n';

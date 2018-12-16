@@ -9,5 +9,6 @@ router.get('/', controller.index);
 router.post('/', controller.post);
 router.put('/:email', controller.put);
 router.delete('/:email', controller.delete);
+router.post('/:email/send', controller.send);
 
 module.exports = router;
